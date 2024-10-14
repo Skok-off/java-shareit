@@ -26,7 +26,7 @@ public class ErrorHandler {
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundException(NotFoundException e) {
-        log.error(ANSI_BLUE + "{}" + ANSI_RESET, e.getMessage());
+        log.error("{}{}{}", ANSI_BLUE, e.getMessage(), ANSI_RESET);
         return new ErrorResponse(e.getMessage());
     }
 
@@ -34,7 +34,7 @@ public class ErrorHandler {
             MissingRequestHeaderException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(Exception e) {
-        log.error(ANSI_YELLOW + "{}" + ANSI_RESET, e.getMessage());
+        log.error("{}{}{}", ANSI_YELLOW, e.getMessage(), ANSI_RESET);
         return new ErrorResponse(e.getMessage());
     }
 
@@ -47,28 +47,28 @@ public class ErrorHandler {
                 .map(FieldError::getDefaultMessage)
                 .toList()
                 .toString();
-        log.error(ANSI_YELLOW + "{}" + ANSI_RESET, errors);
+        log.error("{}{}{}", ANSI_YELLOW, errors, ANSI_RESET);
         return new ErrorResponse(errors);
     }
 
     @ExceptionHandler(ConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleConflictException(ConflictException e) {
-        log.error(ANSI_PURPLE + "{}" + ANSI_RESET, e.getMessage());
+        log.error("{}{}{}", ANSI_PURPLE, e.getMessage(), ANSI_RESET);
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler(AccessException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse handleAccessException(AccessException e) {
-        log.error(ANSI_HIGH_YELLOW + "{}" + ANSI_RESET, e.getMessage());
+        log.error("{}{}{}", ANSI_HIGH_YELLOW, e.getMessage(), ANSI_RESET);
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleNotKnownException(Exception e) {
-        log.error(ANSI_RED + "{}" + ANSI_RESET, e.getMessage());
+        log.error("{}{}{}", ANSI_RED, e.getMessage(), ANSI_RESET);
         return new ErrorResponse(e.getMessage());
     }
 }

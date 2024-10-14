@@ -23,19 +23,21 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @RequestMapping(path = "/items")
 public class ItemController {
+    private static final String HEADER_USER_ID = "X-Sharer-User-Id";
+
     private final ItemService itemService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ItemDto create(@RequestBody @Valid ItemDto itemDto,
-                          @RequestHeader("X-Sharer-User-Id") Integer owner) {
+                          @RequestHeader(HEADER_USER_ID) Integer owner) {
         return itemService.create(itemDto, owner);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto update(@RequestBody @Valid ItemDto itemDto,
                           @PathVariable Integer itemId,
-                          @RequestHeader("X-Sharer-User-Id") Integer owner) {
+                          @RequestHeader(HEADER_USER_ID) Integer owner) {
         return itemService.update(itemDto, itemId, owner);
     }
 
@@ -45,7 +47,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public Collection<ItemDto> getAllItemsFromUser(@RequestHeader("X-Sharer-User-Id") Integer owner) {
+    public Collection<ItemDto> getAllItemsFromUser(@RequestHeader(HEADER_USER_ID) Integer owner) {
         return itemService.getAllItemsFromUser(owner);
     }
 
@@ -56,7 +58,7 @@ public class ItemController {
 
     @DeleteMapping("/{itemId}")
     public void delete(@PathVariable Integer itemId,
-                       @RequestHeader("X-Sharer-User-Id") Integer owner) {
+                       @RequestHeader(HEADER_USER_ID) Integer owner) {
         itemService.delete(itemId, owner);
     }
 }
