@@ -1,13 +1,13 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.booking.dto.BookingDtoItemOut;
 
 import java.util.Collection;
 
 @Data
-@AllArgsConstructor
+@Builder
 public class ItemDtoOut {
     private Integer id;
     private String name;

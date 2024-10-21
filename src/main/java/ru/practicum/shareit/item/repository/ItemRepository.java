@@ -31,15 +31,15 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
             UPDATE items
             SET name = COALESCE(:name, name),
                 description = COALESCE(:description, description),
-                is_available = COALESCE(:isAvailable, is_available)
+                is_available = COALESCE(:available, is_available)
             WHERE id = :id;
             """, nativeQuery = true)
     void updateItem(@Param("id") Integer id,
                     @Param("name") String name,
                     @Param("description") String description,
-                    @Param("isAvailable") Boolean isAvailable);
+                    @Param("available") Boolean available);
 
-    boolean existsByIdAndIsAvailableTrue(Integer id);
+    boolean existsByIdAndAvailableTrue(Integer id);
 
     Collection<Item> findAllByOwnerId(Integer ownerId);
 }

@@ -50,7 +50,7 @@ public class BookingController {
 
     @GetMapping
     public Collection<BookingDtoOut> findByBooker(@RequestHeader(AppHeaders.USER_ID) Integer userId,
-                                                             @RequestParam(required = false, defaultValue = "ALL") BookingState state) {
+                                                  @RequestParam(required = false, defaultValue = "ALL") BookingState state) {
         return bookingService.findAllBookingsByBooker(userId, state);
     }
 

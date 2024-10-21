@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -35,17 +36,20 @@ public class ItemServiceImpl implements ItemService {
     private final ItemValidation itemValidation;
     private final UserValidation userValidation;
     private final EntityManager entityManager;
+    private final ItemMapper itemMapper;
+    private final CommentMapper commentMapper;
+    private final BookingMapper bookingMapper;
 
     @Override
     @Transactional
     public ItemDto create(ItemDto itemDto, Integer ownerId) {
         itemValidation.forCreate(itemDto, ownerId);
         User owner = userRepository.findUserById(ownerId);
-        Item item = ItemMapper.toItem(itemDto);
+        Item item = itemMapper.toEntity(itemDto);
         item.setOwner(owner);
         item = itemRepository.save(item);
         log.info("{}{}", "Создана вещь ", item);
-        return ItemMapper.toItemDto(item);
+        return itemMapper.toDto(item);
     }
 
     @Override
@@ -59,14 +63,18 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findItemById(id);
         entityManager.refresh(item);
         log.info("{}{}", "Обновлена вещь ", item);
-        return ItemMapper.toItemDto(item);
+        return itemMapper.toDto(item);
     }
 
     @Override
     @Transactional
     public ItemDtoOut findById(Integer id) {
         itemValidation.existsItem(id);
-        return ItemMapper.toItemDtoOut(itemRepository.findItemById(id), bookingRepository, commentRepository);
+        return itemMapper.toItemDtoOut(itemRepository.findItemById(id),
+                bookingRepository,
+                commentRepository,
+                bookingMapper,
+                commentMapper);
     }
 
     @Override
@@ -74,12 +82,12 @@ public class ItemServiceImpl implements ItemService {
     public Collection<ItemDto> getAllItemsFromUser(Integer ownerId) {
         userValidation.existsUser(ownerId);
         Collection<Item> itemSet = itemRepository.findAllByOwnerId(ownerId);
-        return itemSet.stream().map(ItemMapper::toItemDto).toList();
+        return itemSet.stream().map(itemMapper::toDto).toList();
     }
 
     @Override
     public Collection<ItemDto> search(String text) {
-        return text.isBlank() ? new ArrayList<>() : itemRepository.search(text).stream().map(ItemMapper::toItemDto).toList();
+        return text.isBlank() ? new ArrayList<>() : itemRepository.search(text).stream().map(itemMapper::toDto).toList();
     }
 
     @Override
@@ -93,12 +101,12 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public CommentDto addComment(Integer itemId, CommentDto commentDto, Integer authorId) {
         itemValidation.forComment(itemId, authorId);
-        Comment comment = CommentMapper.toComment(commentDto);
+        Comment comment = commentMapper.toEntity(commentDto);
         comment.setCreated(LocalDateTime.now());
         comment.setAuthor(userRepository.findUserById(authorId));
         comment.setItem(itemRepository.findItemById(itemId));
         comment = commentRepository.save(comment);
         log.info("{}{}", "Добавлен комментарий ", comment);
-        return CommentMapper.toCommentDto(comment);
+        return commentMapper.toDto(comment);
     }
 }

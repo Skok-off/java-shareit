@@ -25,7 +25,7 @@ public class Item {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
     @Column(name = "is_available")
-    private Boolean isAvailable;
+    private Boolean available;
     @Column(name = "request_id")
     private Integer request;
 }

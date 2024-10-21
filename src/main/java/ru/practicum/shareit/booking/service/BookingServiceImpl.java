@@ -12,7 +12,9 @@ import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.validation.BookingValidation;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
@@ -24,18 +26,24 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
-    private final BookingValidation bookingValidation;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final BookingValidation bookingValidation;
+    private final BookingMapper bookingMapper;
 
     @Override
     @Transactional
     public BookingDtoOut create(BookingDto bookingDto) {
         bookingValidation.forCreate(bookingDto);
-        Booking booking = BookingMapper.toBooking(bookingDto, itemRepository, userRepository);
+        User booker = userRepository.findUserById(bookingDto.getBookerId());
+        Item item = itemRepository.findItemById(bookingDto.getItemId());
+        Booking booking = bookingMapper.toEntity(bookingDto);
+        booking.setBooker(booker);
+        booking.setItem(item);
+        booking.setStatus(BookingStatus.WAITING);
         booking = bookingRepository.save(booking);
         log.info("{}{}", "Создана бронь ", booking);
-        return BookingMapper.toBookingDtoOut(booking);
+        return bookingMapper.toBookingDtoOut(booking);
     }
 
     @Override
@@ -47,7 +55,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setStatus(status);
         bookingRepository.save(booking);
         log.info("{} {} {}", "Обновлен статус брони", status, booking);
-        return BookingMapper.toBookingDtoOut(booking);
+        return bookingMapper.toBookingDtoOut(booking);
     }
 
     @Override
@@ -55,7 +63,7 @@ public class BookingServiceImpl implements BookingService {
     public BookingDtoOut findBookingById(Integer id, Integer userId) {
         Booking booking = bookingRepository.findBookingById(id);
         bookingValidation.forFind(booking, userId);
-        return BookingMapper.toBookingDtoOut(bookingRepository.findBookingById(id));
+        return bookingMapper.toBookingDtoOut(bookingRepository.findBookingById(id));
     }
 
     @Override
@@ -66,13 +74,16 @@ public class BookingServiceImpl implements BookingService {
         LocalDateTime now = LocalDateTime.now();
         switch (state) {
             case ALL -> bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
-            case CURRENT -> bookings = bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, now, now);
+            case CURRENT ->
+                    bookings = bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, now, now);
             case PAST -> bookings = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, now);
             case FUTURE -> bookings = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId, now);
-            case WAITING -> bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
-            case REJECTED -> bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
+            case WAITING ->
+                    bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
+            case REJECTED ->
+                    bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
         }
-        return bookings.stream().map(BookingMapper::toBookingDtoOut).toList();
+        return bookings.stream().map(bookingMapper::toBookingDtoOut).toList();
     }
 
     @Override
@@ -83,12 +94,15 @@ public class BookingServiceImpl implements BookingService {
         LocalDateTime now = LocalDateTime.now();
         switch (state) {
             case ALL -> bookings = bookingRepository.findAllByItemOwnerIdOrderByStartDesc(userId);
-            case CURRENT -> bookings = bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, now, now);
+            case CURRENT ->
+                    bookings = bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, now, now);
             case PAST -> bookings = bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(userId, now);
             case FUTURE -> bookings = bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(userId, now);
-            case WAITING -> bookings = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
-            case REJECTED -> bookings = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
+            case WAITING ->
+                    bookings = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
+            case REJECTED ->
+                    bookings = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
         }
-        return bookings.stream().map(BookingMapper::toBookingDtoOut).toList();
+        return bookings.stream().map(bookingMapper::toBookingDtoOut).toList();
     }
 }

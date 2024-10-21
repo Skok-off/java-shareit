@@ -28,7 +28,7 @@ public class BookingValidation {
             throw new AccessException("Пользователь с id = " + bookingDto.getBookerId() + " не может создать бронь, так как не создан сам.");
         if (!itemRepository.existsById(bookingDto.getItemId()))
             throw new NotFoundException("Нельзя создать бронь на вещь с id = " + bookingDto.getItemId() + " - её нет.");
-        if (!itemRepository.existsByIdAndIsAvailableTrue(bookingDto.getItemId()))
+        if (!itemRepository.existsByIdAndAvailableTrue(bookingDto.getItemId()))
             throw new ValidateException("Указанная вешь недоступна для бронирования.");
     }
 
