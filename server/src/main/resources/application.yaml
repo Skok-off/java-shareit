@@ -1,0 +1,17 @@
+server.port: 9090
+spring:
+  config.import: "file:../common-config.yaml"
+  datasource:
+    driverClassName: org.postgresql.Driver
+    username: postgres
+    password: 12345
+    url: jdbc:postgresql://localhost:5432/postgres
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      show_sql: true
+      jdbc: time_zone
+    properties.hibernate.format_sql: true
+  sql.init.mode: always
