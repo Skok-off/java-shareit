@@ -18,13 +18,20 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+//@RequiredArgsConstructor(onConstructor_ = @Autowired)
 @ActiveProfiles("test")
 @Transactional
 public class UserServiceTest {
     private final UserService userService;
     private final EntityManager entityManager;
     private final UserMapper userMapper;
+
+    @Autowired
+    public UserServiceTest(UserService userService, EntityManager entityManager, UserMapper userMapper) {
+        this.userService = userService;
+        this.entityManager = entityManager;
+        this.userMapper = userMapper;
+    }
 
     @Test
     void addNewUser() {
