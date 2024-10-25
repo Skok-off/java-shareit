@@ -1,34 +1,32 @@
 server:
   port: 9090
+
 spring:
   jpa:
-    open-in-view: false
     hibernate:
-      ddl-auto: create-drop
-      dialect: org.hibernate.dialect.PostgreSQLDialect
-      show_sql: true
-      jdbc: time_zone
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: true
-  datasource:
-    driverClassName: org.postgresql.Driver
-    username: postgres
-    password: 12345
-    url: jdbc:postgresql://localhost:5432/postgres
   sql:
     init:
       mode: always
-  output:
-    ansi:
-      enabled: always
-logging:
-  pattern:
-    console: "%d{yyyy-MM-dd' 'HH:mm:ss}|%clr(%-5level)|%-50logger{36}: %clr(%msg%n)"
-  level:
-    org:
-      apache.catalina: OFF
-      hibernate.SQL: INFO  # Для логирования SQL-запросов
-      springframework:
-        orm.jpa.JpaTransactionManager: INFO
-        transaction.interceptor: INFO
+
+  # Конфигурация для PostgreSQL
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/shareit
+    username: shareit
+    password: shareit
+
+# Конфигурация для H2 при активном профиле test
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:shareit
+    username: shareit
+    password: shareit
